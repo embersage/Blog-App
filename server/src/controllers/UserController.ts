@@ -9,35 +9,45 @@ config();
 
 class UserController {
   static async login(req: Request, res: Response) {
-    const { email, password } = req.body;
+    try {
+      const { email, password } = req.body;
 
-    const user = await AppDataSource.getRepository(User).findOneBy({ email });
-    if (!user) {
-      return res.json({ message: 'Неверный логин или пароль' });
+      const userRepository = AppDataSource.getRepository(User);
+      const user = await userRepository.findOneBy({ email });
+      if (!user) {
+        return res.status(500).json({ message: 'Неверный логин или пароль' });
+      }
+
+      const isEqual = await bcrypt.compareSync(password, user.passwordHash);
+      if (!isEqual) {
+        return res.status(500).json({ message: 'Неверный логин или пароль' });
+      }
+
+      const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY as string, { expiresIn: '24h' });
+
+      return res.status(200).json({ token });
+    } catch (error) {
+      return res.status(500).json({ message: 'Ошибка при авторизации.' });
     }
-
-    const isEqual = await bcrypt.compareSync(password, user.passwordHash);
-    if (!isEqual) {
-      return res.json({ message: 'Неверный логин или пароль' });
-    }
-    const { passwordHash, ...userData } = user;
-    const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY as string, { expiresIn: '24h' });
-
-    return res.json({ userData, token });
   }
 
   static async register(req: Request, res: Response) {
-    const { name, email, password } = req.body;
+    try {
+      const { name, email, password } = req.body;
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash(password, salt);
 
-    const user = AppDataSource.getRepository(User).create({ name, email, passwordHash: hashedPassword });
-    const newUser = await AppDataSource.getRepository(User).save(user);
-    const { passwordHash, ...userData } = newUser;
-    const token = jwt.sign({ id: newUser.id }, process.env.SECRET_KEY as string, { expiresIn: '24h' });
+      const userRepository = AppDataSource.getRepository(User);
+      const user = userRepository.create({ name, email, passwordHash: hashedPassword });
+      const newUser = await AppDataSource.getRepository(User).save(user);
 
-    return res.json({ userData, token });
+      const token = jwt.sign({ id: newUser.id }, process.env.SECRET_KEY as string, { expiresIn: '24h' });
+
+      return res.status(200).json({ token });
+    } catch (error) {
+      return res.status(500).json({ message: 'Ошибка при регистрации.' });
+    }
   }
 }
 
