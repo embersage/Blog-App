@@ -1,4 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, Relation } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  Relation,
+} from 'typeorm';
 import Post from './Post.js';
 
 @Entity()
@@ -14,6 +22,12 @@ class User {
 
   @Column('text')
   passwordHash!: string;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 
   @OneToMany(() => Post, (post) => post.user)
   posts!: Relation<Post>[];

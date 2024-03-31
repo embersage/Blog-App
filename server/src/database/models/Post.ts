@@ -1,4 +1,12 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, Relation } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  Relation,
+} from 'typeorm';
 import User from './User.js';
 
 @Entity()
@@ -8,6 +16,15 @@ class Post {
 
   @Column('text')
   text!: string;
+
+  @Column({ type: 'int', default: 0 })
+  views!: number;
+
+  @CreateDateColumn()
+  createdAt!: Date;
+
+  @UpdateDateColumn()
+  updatedAt!: Date;
 
   @ManyToOne(() => User, (user) => user.posts)
   user!: Relation<User>;

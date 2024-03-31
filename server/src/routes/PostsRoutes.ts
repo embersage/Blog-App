@@ -10,9 +10,10 @@ class PostsRoutes {
   }
 
   initializeRoutes() {
-    this.router.get('/', checkAuth, PostController.getAll);
-    this.router.get('/:id', checkAuth, PostController.getOne);
+    this.router.get('/', PostController.getAll);
+    this.router.get('/:id', PostController.getOne);
     this.router.post('/', checkAuth, PostController.create);
+    this.router.patch('/:id', checkAuth, PostController.edit);
     this.router.delete('/:id', checkAuth, PostController.delete);
   }
 }
