@@ -15,7 +15,13 @@ class Post {
   id!: string;
 
   @Column('text')
+  title!: string;
+
+  @Column('text')
   text!: string;
+
+  @Column({ type: 'text', nullable: true })
+  image!: string;
 
   @Column({ type: 'int', default: 0 })
   views!: number;
