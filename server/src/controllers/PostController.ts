@@ -35,29 +35,31 @@ class PostController {
   static async create(req: Request, res: Response) {
     try {
       const userId = req.userId;
-      const { text } = req.body;
+      const { title, text, image } = req.body;
 
       const postRepository = AppDataSource.getRepository(Post);
 
-      const post = postRepository.create({ text, user: userId });
+      const post = postRepository.create({ title, text, image, user: userId });
       const createdPost = await AppDataSource.getRepository(Post).save(post);
 
       return res.status(201).json(createdPost);
     } catch (error) {
-      return res.status(500).json({ message: 'Ошибка при получении ресурса.' });
+      return res.status(500).json({ message: 'Ошибка при создании ресурса.' });
     }
   }
 
   static async edit(req: Request, res: Response) {
     try {
       const { id } = req.params;
-      const { text } = req.body;
+      const { title, text, image } = req.body;
 
       const postRepository = AppDataSource.getRepository(Post);
       const post = await postRepository.findOneBy({ id });
 
       if (post) {
+        post.title = title;
         post.text = text;
+        post.image = image;
         const updatedPost = await postRepository.save(post);
 
         return res.status(200).json(updatedPost);
