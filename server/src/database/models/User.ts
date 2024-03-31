@@ -6,13 +6,13 @@ class User {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column('text')
   name!: string;
 
-  @Column({ unique: true })
+  @Column({ unique: true, type: 'text' })
   email!: string;
 
-  @Column()
+  @Column('text')
   passwordHash!: string;
 
   @OneToMany(() => Post, (post) => post.user)

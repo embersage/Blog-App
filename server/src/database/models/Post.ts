@@ -3,10 +3,10 @@ import User from './User.js';
 
 @Entity()
 class Post {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column()
+  @Column('text')
   text!: string;
 
   @ManyToOne(() => User, (user) => user.posts)
