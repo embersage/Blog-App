@@ -1,11 +1,14 @@
 import { FC } from 'react';
 import styled from 'styled-components';
-import { FaRegMoon } from 'react-icons/fa';
 import { MdOutlineCreate } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
 import { logout } from '../store/reducers/userSlice';
-import { setIsOpenedModalWindow } from '../store/reducers/interfaceSlice';
+import {
+  setIsOpenedModalWindow,
+  setPressedButton,
+} from '../store/reducers/interfaceSlice';
+import Search from './Search';
 
 const HeaderWrapper = styled.header`
   padding: 10px 15px;
@@ -70,10 +73,15 @@ const Header: FC = () => {
     <HeaderWrapper>
       <HeaderInner>
         <HeaderContent>
-          <FaRegMoon />
+          <Search />
           {userData ? (
             <>
-              <button onClick={() => {}}>
+              <button
+                onClick={() => {
+                  dispatch(setIsOpenedModalWindow(true));
+                  dispatch(setPressedButton('articleCreation'));
+                }}
+              >
                 <span>
                   <MdOutlineCreate />
                   Создать статью
@@ -92,6 +100,7 @@ const Header: FC = () => {
             <button
               onClick={() => {
                 dispatch(setIsOpenedModalWindow(true));
+                dispatch(setPressedButton('login'));
               }}
             >
               Войти

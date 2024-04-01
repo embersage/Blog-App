@@ -2,10 +2,14 @@ import { createSlice } from '@reduxjs/toolkit';
 
 interface InterfaceState {
   isOpenedModalWindow: boolean;
+  search: string;
+  pressedButton: string;
 }
 
 const initialState: InterfaceState = {
   isOpenedModalWindow: false,
+  search: '',
+  pressedButton: '',
 };
 
 const interfaceSlice = createSlice({
@@ -15,9 +19,16 @@ const interfaceSlice = createSlice({
     setIsOpenedModalWindow: (state, action) => {
       state.isOpenedModalWindow = action.payload;
     },
+    setSearch: (state, action) => {
+      state.search = action.payload;
+    },
+    setPressedButton: (state, action) => {
+      state.pressedButton = action.payload;
+    },
   },
 });
 
-export const { setIsOpenedModalWindow } = interfaceSlice.actions;
+export const { setIsOpenedModalWindow, setSearch, setPressedButton } =
+  interfaceSlice.actions;
 
 export default interfaceSlice.reducer;

@@ -1,9 +1,14 @@
-import { FC, useEffect, useState } from 'react';
+import { FC, useEffect, useState, MouseEvent, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import { AppDispatch, RootState } from '../store';
 import { login, register } from '../store/reducers/userSlice';
-import { fetchPost, fetchPosts } from '../store/reducers/postsSlice';
+import {
+  createPost,
+  fetchPost,
+  fetchPosts,
+  setPost,
+} from '../store/reducers/postsSlice';
 import PostBlock from '../components/PostBlock';
 import IPost from '../models/IPost';
 import ModalWindow from '../components/ModalWindow';
@@ -27,21 +32,23 @@ const PostBlockWrapper = styled.div`
   row-gap: 20px;
 `;
 
-const AuthorizationBlock = styled.form`
+const FormWrapper = styled.form`
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   row-gap: 20px;
 
+  & h2 {
+    margin: 0;
+  }
+
   & label {
     width: 270px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-
-    & span {
-    }
 
     & input {
       padding: 5px;
@@ -81,6 +88,44 @@ const AuthorizationBlock = styled.form`
   }
 `;
 
+const TextWrapper = styled.div`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  justify-content: center;
+  row-gap: 10px;
+
+  & input {
+    padding: 5px;
+    width: 100%;
+    height: 40px;
+    border: 2px solid #ededed;
+    border-radius: 10px;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+
+    &:focus {
+      border: 2px solid #dddddd;
+    }
+  }
+
+  & textarea {
+    padding: 5px;
+    resize: none;
+    width: 100%;
+    height: 150px;
+    border: 2px solid #ededed;
+    border-radius: 10px;
+    outline: none;
+    transition: all 0.3s ease-in-out;
+
+    &:focus {
+      border: 2px solid #dddddd;
+    }
+  }
+`;
+
 const SwitchButton = styled.button``;
 
 const Home: FC = () => {
@@ -90,14 +135,80 @@ const Home: FC = () => {
   const isOpenedModalWindow = useSelector(
     (state: RootState) => state.interfaceReducer.isOpenedModalWindow
   );
+  const search = useSelector(
+    (state: RootState) => state.interfaceReducer.search
+  );
+  const pressedButton = useSelector(
+    (state: RootState) => state.interfaceReducer.pressedButton
+  );
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [title, setTitle] = useState('');
+  const [text, setText] = useState('');
   const [modalContent, setModalContent] = useState('authorization');
+  const largePostRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    dispatch(fetchPosts());
-  }, []);
+    dispatch(fetchPosts(search));
+
+    //TODO
+    //Change type of event
+    const handleClickOutside = (event: any) => {
+      if (
+        largePostRef.current &&
+        !event.composedPath().includes(largePostRef.current)
+      ) {
+        dispatch(setPost(null));
+      }
+    };
+
+    document.body.addEventListener('click', handleClickOutside);
+
+    return () => {
+      document.body.removeEventListener('click', handleClickOutside);
+    };
+  }, [search]);
+
+  const authClickHandler = async (event: MouseEvent) => {
+    event.preventDefault();
+    if (modalContent === 'authorization') {
+      const response = await dispatch(login({ email, password }));
+      if (!response.payload) {
+        return alert('Не удалось авторизоваться.');
+      }
+      if ('token' in response.payload) {
+        localStorage.setItem('token', response.payload.token);
+      }
+    } else {
+      const response = await dispatch(register({ name, email, password }));
+      if (!response.payload) {
+        return alert('Не удалось зарегистрироваться.');
+      }
+      if ('token' in response.payload) {
+        localStorage.setItem('token', response.payload.token);
+      }
+    }
+
+    if (localStorage.getItem('token')) {
+      dispatch(setIsOpenedModalWindow(false));
+      setName('');
+      setEmail('');
+      setPassword('');
+    }
+  };
+
+  const createPostClickHandler = async (event: MouseEvent) => {
+    event.preventDefault();
+    if (title.length > 0 && text.length > 0) {
+      await dispatch(createPost({ title, text }));
+      await dispatch(fetchPosts(search));
+      dispatch(setIsOpenedModalWindow(false));
+      setTitle('');
+      setText('');
+      setPassword('');
+    }
+  };
 
   return (
     <>
@@ -114,96 +225,99 @@ const Home: FC = () => {
             );
           })}
         </PostBlockWrapper>
-        {post && <PostBlock post={post} isLarge={true} />}
+        {post && <PostBlock ref={largePostRef} post={post} isLarge={true} />}
       </ContentWrapper>
       {isOpenedModalWindow && (
         <ModalWindow>
-          <AuthorizationBlock>
-            <h2>{modalContent === 'authorization' ? 'Вход' : 'Регистрация'}</h2>
-            {modalContent === 'registration' && (
+          {pressedButton === 'login' && (
+            <FormWrapper>
+              <h2>
+                {modalContent === 'authorization' ? 'Вход' : 'Регистрация'}
+              </h2>
+              {modalContent === 'registration' && (
+                <label>
+                  <span>Имя:</span>
+                  <input
+                    value={name}
+                    onChange={(event) => {
+                      setName(event.target.value);
+                    }}
+                    type="text"
+                  />
+                </label>
+              )}
               <label>
-                <span>Имя:</span>
+                <span>Email:</span>
                 <input
-                  value={name}
+                  value={email}
                   onChange={(event) => {
-                    setName(event.target.value);
+                    setEmail(event.target.value);
+                  }}
+                  type="email"
+                />
+              </label>
+              <label>
+                <span>Пароль:</span>
+                <input
+                  value={password}
+                  onChange={(event) => {
+                    setPassword(event.target.value);
+                  }}
+                  type="password"
+                />
+              </label>
+              <button
+                type="submit"
+                onClick={(event: MouseEvent) => authClickHandler(event)}
+              >
+                {modalContent === 'authorization'
+                  ? 'Войти'
+                  : 'Зарегистрироваться'}
+              </button>
+              <SwitchButton
+                onClick={(event) => {
+                  event.preventDefault();
+                  modalContent === 'authorization'
+                    ? setModalContent('registration')
+                    : setModalContent('authorization');
+                }}
+              >
+                {modalContent === 'authorization'
+                  ? 'Нет аккаунта? Зарегистрируйтесь!'
+                  : 'Уже есть аккаунт? Авторизуйтесь!'}
+              </SwitchButton>
+            </FormWrapper>
+          )}
+          {pressedButton === 'articleCreation' && (
+            <FormWrapper>
+              <h2>Создание записи</h2>
+              <TextWrapper>
+                <span>Название:</span>
+                <input
+                  value={title}
+                  onChange={(event) => {
+                    setTitle(event.target.value);
                   }}
                   type="text"
                 />
-              </label>
-            )}
-            <label>
-              <span>Email:</span>
-              <input
-                value={email}
-                onChange={(event) => {
-                  setEmail(event.target.value);
-                }}
-                type="email"
-              />
-            </label>
-            <label>
-              <span>Пароль:</span>
-              <input
-                value={password}
-                onChange={(event) => {
-                  setPassword(event.target.value);
-                }}
-                type="password"
-              />
-            </label>
-            <button
-              type="submit"
-              onClick={async (event) => {
-                event.preventDefault();
-                if (modalContent === 'authorization') {
-                  const response = await dispatch(login({ email, password }));
-
-                  if (!response.payload) {
-                    return alert('Не удалось авторизоваться.');
-                  }
-
-                  if ('token' in response.payload) {
-                    localStorage.setItem('token', response.payload.token);
-                    dispatch(setIsOpenedModalWindow(false));
-                    setEmail('');
-                    setPassword('');
-                  }
-                } else {
-                  const response = await dispatch(
-                    register({ name, email, password })
-                  );
-
-                  if (!response.payload) {
-                    return alert('Не удалось зарегистрироваться.');
-                  }
-                  if ('token' in response.payload) {
-                    localStorage.setItem('token', response.payload.token);
-                    dispatch(setIsOpenedModalWindow(false));
-                    setName('');
-                    setEmail('');
-                    setPassword('');
-                  }
-                }
-              }}
-            >
-              {modalContent === 'authorization'
-                ? 'Войти'
-                : 'Зарегистрироваться'}
-            </button>
-            <SwitchButton
-              onClick={(event) => {
-                event.preventDefault();
-                modalContent === 'authorization'
-                  ? setModalContent('registration')
-                  : setModalContent('authorization');
-              }}
-            >
-              {modalContent === 'authorization'
-                ? 'Нет аккаунта? Зарегистрируйтесь!'
-                : 'Уже есть аккаунт? Авторизуйтесь!'}
-            </SwitchButton>
-          </AuthorizationBlock>
+              </TextWrapper>
+              <TextWrapper>
+                <span>Текст:</span>
+                <textarea
+                  value={text}
+                  onChange={(event) => {
+                    setText(event.target.value);
+                  }}
+                />
+              </TextWrapper>
+              <button
+                type="submit"
+                onClick={(event: MouseEvent) => createPostClickHandler(event)}
+              >
+                Опубликовать
+              </button>
+            </FormWrapper>
+          )}
         </ModalWindow>
       )}
     </>

@@ -1,14 +1,20 @@
 import { Request, Response } from 'express';
 import Post from '../database/models/Post.js';
+import { ILike } from 'typeorm';
 import AppDataSource from '../database/connection.js';
 
 class PostController {
   static async getAll(req: Request, res: Response) {
     try {
       const { field, order } = req.query;
+      let { search } = req.query;
+      search = search || '';
 
       const postRepository = AppDataSource.getRepository(Post);
       const posts = await postRepository.find({
+        where: {
+          title: ILike(`%${search}%`),
+        },
         order: {
           [field as string]: order,
         },

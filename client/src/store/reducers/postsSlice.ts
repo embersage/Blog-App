@@ -14,16 +14,27 @@ const initialState: PostState = {
   loading: 'idle',
 };
 
-export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
-  const response = await axios.get('/api/posts');
-  return response.data;
-});
+export const fetchPosts = createAsyncThunk(
+  'posts/fetchPosts',
+  async (search: string) => {
+    const response = await axios.get('/api/posts', { params: { search } });
+    return response.data;
+  }
+);
 
 export const fetchPost = createAsyncThunk(
   'posts/fetchPost',
   async (id: string) => {
     const response = await axios.get(`/api/posts/${id}`);
-    return response;
+    return response.data;
+  }
+);
+
+export const createPost = createAsyncThunk(
+  'posts/createPost',
+  async ({ title, text }: { title: string; text: string }) => {
+    const response = await axios.post('/api/posts', { title, text });
+    return response.data;
   }
 );
 
@@ -49,34 +60,20 @@ const postsReducer = createSlice({
       state.loading = 'failed';
     });
     builder.addCase(fetchPost.pending, (state, action) => {
-      state.post = {
-        id: '',
-        title: '',
-        text: '',
-        views: 0,
-        image: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      state.post = null;
       state.loading = 'pending';
     });
     builder.addCase(fetchPost.fulfilled, (state, action) => {
-      state.post = action.payload.data;
+      state.post = action.payload;
       state.loading = 'succeeded';
     });
     builder.addCase(fetchPost.rejected, (state, action) => {
-      state.post = {
-        id: '',
-        title: '',
-        text: '',
-        views: 0,
-        image: '',
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
+      state.post = null;
       state.loading = 'failed';
     });
   },
 });
+
+export const { setPost } = postsReducer.actions;
 
 export default postsReducer.reducer;
