@@ -25,7 +25,16 @@ class UserController {
 
       const token = jwt.sign({ id: user.id }, process.env.SECRET_KEY as string, { expiresIn: '24h' });
 
-      return res.status(200).json({ token });
+      return res.status(200).json({
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        },
+        token,
+      });
     } catch (error) {
       return res.status(500).json({ message: 'Ошибка при авторизации.' });
     }
@@ -44,9 +53,32 @@ class UserController {
 
       const token = jwt.sign({ id: newUser.id }, process.env.SECRET_KEY as string, { expiresIn: '24h' });
 
-      return res.status(200).json({ token });
+      return res.status(200).json({ user, token });
     } catch (error) {
       return res.status(500).json({ message: 'Ошибка при регистрации.' });
+    }
+  }
+
+  static async checkAuthorization(req: Request, res: Response) {
+    try {
+      const id = req.userId;
+
+      const userRepository = AppDataSource.getRepository(User);
+      const user = await userRepository.findOneBy({ id });
+
+      if (user) {
+        return res.status(200).json({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          createdAt: user.createdAt,
+          updatedAt: user.updatedAt,
+        });
+      }
+
+      return res.status(404).json({ message: 'Пользователь не найден' });
+    } catch (error) {
+      return res.status(500).json({ message: 'Ошибка при проверке пользователя.' });
     }
   }
 }

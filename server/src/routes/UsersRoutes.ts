@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import UserController from '../controllers/UserController.js';
+import checkAuth from '../middlewares/checkAuth.js';
 
 class UsersRoutes {
   router = Router();
@@ -11,6 +12,7 @@ class UsersRoutes {
   initializeRoutes() {
     this.router.post('/login', UserController.login);
     this.router.post('/register', UserController.register);
+    this.router.get('/check_auth', checkAuth, UserController.checkAuthorization);
   }
 }
 

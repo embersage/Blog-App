@@ -1,29 +1,43 @@
 import { FC } from 'react';
 import styled from 'styled-components';
 import { FaRegMoon } from 'react-icons/fa';
+import { MdOutlineCreate } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../store';
+import { logout } from '../store/reducers/userSlice';
 import { setIsOpenedModalWindow } from '../store/reducers/interfaceSlice';
 
 const HeaderWrapper = styled.header`
-  margin: 0;
-  padding: 0;
+  padding: 10px 15px;
   width: 100%;
-  height: 60px;
+  top: 0;
+  position: sticky;
+  z-index: 1;
+  background-color: #fff;
   display: flex;
   justify-content: center;
   align-items: center;
-  position: fixed;
-  background-color: #fff;
-  top: 0;
-  z-index: 1;
-  border-bottom: 1px solid #000;
+  box-shadow: 0px 5px 10px rgb(233, 233, 233);
+`;
+
+const HeaderInner = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
+const HeaderContent = styled.div`
+  height: 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 1160px;
 
   & button {
     margin: 0;
     padding: 0;
-    width: 120px;
-    height: 30px;
+    width: 150px;
+    height: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -32,6 +46,12 @@ const HeaderWrapper = styled.header`
     border-radius: 10px;
     transition: all 0.3s ease-in-out;
     color: #939393;
+
+    & span {
+      display: flex;
+      justify-content: space-between;
+      column-gap: 5px;
+    }
 
     &:hover {
       cursor: pointer;
@@ -42,31 +62,43 @@ const HeaderWrapper = styled.header`
   }
 `;
 
-const HeaderContent = styled.div`
-  width: 1120px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
 const Header: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const isOpenedModalWindow = useSelector(
-    (state: RootState) => state.interfaceReducer.isOpenedModalWindow
-  );
+  const userData = useSelector((state: RootState) => state.userReducer.data);
 
   return (
     <HeaderWrapper>
-      <HeaderContent>
-        <FaRegMoon />
-        <button
-          onClick={() => {
-            dispatch(setIsOpenedModalWindow(!isOpenedModalWindow));
-          }}
-        >
-          Войти
-        </button>
-      </HeaderContent>
+      <HeaderInner>
+        <HeaderContent>
+          <FaRegMoon />
+          {userData ? (
+            <>
+              <button onClick={() => {}}>
+                <span>
+                  <MdOutlineCreate />
+                  Создать статью
+                </span>
+              </button>
+              <button
+                onClick={() => {
+                  dispatch(logout());
+                  localStorage.removeItem('token');
+                }}
+              >
+                Выйти
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => {
+                dispatch(setIsOpenedModalWindow(true));
+              }}
+            >
+              Войти
+            </button>
+          )}
+        </HeaderContent>
+      </HeaderInner>
     </HeaderWrapper>
   );
 };

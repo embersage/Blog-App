@@ -5,8 +5,14 @@ import AppDataSource from '../database/connection.js';
 class PostController {
   static async getAll(req: Request, res: Response) {
     try {
+      const { field, order } = req.query;
+
       const postRepository = AppDataSource.getRepository(Post);
-      const posts = await postRepository.find();
+      const posts = await postRepository.find({
+        order: {
+          [field as string]: order,
+        },
+      });
 
       return res.status(200).json(posts);
     } catch (error) {

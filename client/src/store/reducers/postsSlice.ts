@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import axios from 'axios';
+import axios from '../../axios';
 import IPost from '../../models/IPost';
 
 interface PostState {
@@ -15,18 +15,14 @@ const initialState: PostState = {
 };
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
-  const response = await axios.get(
-    `${process.env.REACT_APP_API_URL}/api/posts`
-  );
-  return response;
+  const response = await axios.get('/api/posts');
+  return response.data;
 });
 
 export const fetchPost = createAsyncThunk(
   'posts/fetchPost',
   async (id: string) => {
-    const response = await axios.get(
-      `${process.env.REACT_APP_API_URL}/api/posts/${id}`
-    );
+    const response = await axios.get(`/api/posts/${id}`);
     return response;
   }
 );
@@ -45,7 +41,7 @@ const postsReducer = createSlice({
       state.loading = 'pending';
     });
     builder.addCase(fetchPosts.fulfilled, (state, action) => {
-      state.posts = action.payload.data;
+      state.posts = action.payload;
       state.loading = 'succeeded';
     });
     builder.addCase(fetchPosts.rejected, (state, action) => {

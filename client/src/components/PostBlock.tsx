@@ -4,7 +4,6 @@ import { BsEyeFill } from 'react-icons/bs';
 import IPost from '../models/IPost';
 
 const PostBlockWrapper = styled.div<{ isLarge: boolean }>`
-  margin: 0;
   padding: 20px;
   width: ${(props) => (props.isLarge ? '600px' : '500px')};
   display: flex;
@@ -15,18 +14,16 @@ const PostBlockWrapper = styled.div<{ isLarge: boolean }>`
   box-shadow: 0px 0px 10px #eeeeee;
   border-radius: 20px;
   transition: all 0.3s ease-in-out;
-  font-family: 'Fira Sans', sans-serif;
-  font-weight: 400;
-  font-style: normal;
+  
   position: ${(props) => (props.isLarge ? 'sticky' : 'static')};
-  top: ${(props) => (props.isLarge ? '80px' : '')};
+  top: ${(props) => (props.isLarge ? '100px' : '')};
 
   & h2 {
     margin: 0;
     padding: 0;
-    font-family: 'Fira Sans', sans-serif;
+
     font-weight: 600;
-    font-style: normal;
+
   }
 
   & img {
@@ -37,7 +34,7 @@ const PostBlockWrapper = styled.div<{ isLarge: boolean }>`
   & p {
     margin: 0;
     padding: 0;
-    width: 400px;
+    max-width: 500px;
     text-align: justify;
   }
 
