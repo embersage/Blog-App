@@ -19,7 +19,7 @@ const PostBlockWrapper = styled.div<{ isLarge: boolean }>`
   font-weight: 400;
   font-style: normal;
   position: ${(props) => (props.isLarge ? 'sticky' : 'static')};
-  top: ${(props) => (props.isLarge ? '20px' : '')};
+  top: ${(props) => (props.isLarge ? '80px' : '')};
 
   & h2 {
     margin: 0;
@@ -42,9 +42,9 @@ const PostBlockWrapper = styled.div<{ isLarge: boolean }>`
   }
 
   &:hover {
-    cursor: pointer;
-    transform: scale(1.05);
-    box-shadow: 0px 0px 25px #eeeeee;
+    cursor: ${(props) => (props.isLarge ? '' : 'pointer')};
+    transform: ${(props) => (props.isLarge ? '' : 'scale(1.05)')};
+    box-shadow: ${(props) => (props.isLarge ? '' : '0px 0px 25px #eeeeee')};
   }
 `;
 
