@@ -24,7 +24,7 @@ const ModalBlock = styled.div`
   align-items: center;
   justify-content: center;
   width: 400px;
-  min-height: 400px;
+  min-height: 320px;
   border-radius: 25px;
   background-color: #fff;
   z-index: 3;

@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useState } from 'react';
 import styled from 'styled-components';
 import { MdOutlineCreate } from 'react-icons/md';
 import { useDispatch, useSelector } from 'react-redux';
@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from '../store';
 import { logout } from '../store/reducers/userSlice';
 import {
   setIsOpenedModalWindow,
+  setOrder,
   setPressedButton,
 } from '../store/reducers/interfaceSlice';
 import Search from './Search';
@@ -35,6 +36,7 @@ const HeaderContent = styled.div`
   justify-content: space-between;
   align-items: center;
   width: 1160px;
+  position: relative;
 
   & button {
     margin: 0;
@@ -65,15 +67,66 @@ const HeaderContent = styled.div`
   }
 `;
 
+const SortPopup = styled.div`
+  position: absolute;
+  left: 43%;
+  top: 100%;
+  margin-top: 15px;
+  background: #ffffff;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.09);
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 10px 0;
+  width: 160px;
+
+  & ul {
+    overflow: hidden;
+
+    & li {
+      padding: 12px 20px;
+      cursor: pointer;
+    }
+  }
+`;
+
 const Header: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const userData = useSelector((state: RootState) => state.userReducer.data);
+  const order = useSelector((state: RootState) => state.interfaceReducer.order);
+  const [isVisible, setIsVisible] = useState(false);
+  const variants = [
+    { name: 'Сначала новые', field: 'createdAt', order: 'ASC' },
+    { name: 'Сначала старые', field: 'createdAt', order: 'DESC' },
+    { name: 'Сначала популярные', field: 'views', order: 'DESC' },
+    { name: 'Сначала непопулярные', field: 'views', order: 'ASC' },
+  ];
 
   return (
     <HeaderWrapper>
       <HeaderInner>
         <HeaderContent>
           <Search />
+          <span>Сортировка: </span>
+          <span onClick={() => setIsVisible(!isVisible)}>
+            {variants[order].name}
+          </span>
+          {isVisible && (
+            <SortPopup>
+              <ul>
+                {variants.map((item, index) => (
+                  <li
+                    key={index}
+                    onClick={() => {
+                      dispatch(setOrder(index));
+                      setIsVisible(false);
+                    }}
+                  >
+                    {item.name}
+                  </li>
+                ))}
+              </ul>
+            </SortPopup>
+          )}
           {userData ? (
             <>
               <button

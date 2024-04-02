@@ -4,12 +4,14 @@ interface InterfaceState {
   isOpenedModalWindow: boolean;
   search: string;
   pressedButton: string;
+  order: number;
 }
 
 const initialState: InterfaceState = {
   isOpenedModalWindow: false,
   search: '',
   pressedButton: '',
+  order: 0,
 };
 
 const interfaceSlice = createSlice({
@@ -25,10 +27,13 @@ const interfaceSlice = createSlice({
     setPressedButton: (state, action) => {
       state.pressedButton = action.payload;
     },
+    setOrder: (state, action) => {
+      state.order = action.payload;
+    },
   },
 });
 
-export const { setIsOpenedModalWindow, setSearch, setPressedButton } =
+export const { setIsOpenedModalWindow, setSearch, setPressedButton, setOrder } =
   interfaceSlice.actions;
 
 export default interfaceSlice.reducer;

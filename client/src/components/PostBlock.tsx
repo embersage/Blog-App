@@ -1,4 +1,4 @@
-import { FC, forwardRef } from 'react';
+import { forwardRef } from 'react';
 import styled from 'styled-components';
 import { BsEyeFill } from 'react-icons/bs';
 import IPost from '../models/IPost';
@@ -6,6 +6,7 @@ import IPost from '../models/IPost';
 const PostBlockWrapper = styled.div<{ isLarge: boolean }>`
   padding: 20px;
   width: ${(props) => (props.isLarge ? '600px' : '500px')};
+  height: ${(props) => (props.isLarge ? '550px' : '')};
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -14,8 +15,6 @@ const PostBlockWrapper = styled.div<{ isLarge: boolean }>`
   box-shadow: 0px 0px 10px #eeeeee;
   border-radius: 20px;
   transition: all 0.3s ease-in-out;
-  position: ${(props) => (props.isLarge ? 'sticky' : 'static')};
-  top: ${(props) => (props.isLarge ? '100px' : '')};
 
   & h2 {
     margin: 0;
@@ -30,10 +29,11 @@ const PostBlockWrapper = styled.div<{ isLarge: boolean }>`
   }
 
   & p {
+    margin: 0;
     padding: 5px;
     max-width: 500px;
-    max-height: 200px;
-    overflow: auto;
+    min-height: 200px;
+    overflow-y: auto;
     text-align: justify;
   }
 
@@ -83,7 +83,7 @@ const PostBlock = forwardRef<Ref, IProps>((props, ref) => {
         <span>
           {post.views} <BsEyeFill />
         </span>
-        <span>{post.createdAt.toString()}</span>
+        <span>{new Date(post.createdAt).toLocaleString()}</span>
       </AdditionalInfo>
     </PostBlockWrapper>
   );

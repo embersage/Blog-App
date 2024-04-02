@@ -1,6 +1,7 @@
 import { FC, useEffect, useState, MouseEvent, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
+import ContentLoader from 'react-content-loader';
 import { AppDispatch, RootState } from '../store';
 import { login, register } from '../store/reducers/userSlice';
 import {
@@ -126,6 +127,11 @@ const TextWrapper = styled.div`
   }
 `;
 
+const FullArticle = styled.div`
+  position: sticky;
+  top: 100px;
+`;
+
 const SwitchButton = styled.button``;
 
 const Home: FC = () => {
@@ -147,10 +153,17 @@ const Home: FC = () => {
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
   const [modalContent, setModalContent] = useState('authorization');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingFullArticle, setIsLoadingFullArticle] = useState(true);
   const largePostRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    dispatch(fetchPosts(search));
+    (async () => {
+      const response = await dispatch(fetchPosts(search));
+      if (response.payload) {
+        setIsLoading(false);
+      }
+    })();
 
     //TODO
     //Change type of event
@@ -160,6 +173,7 @@ const Home: FC = () => {
         !event.composedPath().includes(largePostRef.current)
       ) {
         dispatch(setPost(null));
+        setIsLoadingFullArticle(true);
       }
     };
 
@@ -180,7 +194,7 @@ const Home: FC = () => {
       if ('token' in response.payload) {
         localStorage.setItem('token', response.payload.token);
       }
-    } else {
+    } else if (name.length > 0 && email.length > 0 && password.length > 0) {
       const response = await dispatch(register({ name, email, password }));
       if (!response.payload) {
         return alert('Не удалось зарегистрироваться.');
@@ -214,18 +228,61 @@ const Home: FC = () => {
     <>
       <ContentWrapper>
         <PostBlockWrapper>
-          {posts.map((item: IPost) => {
-            return (
-              <PostBlock
-                key={item.id}
-                post={item}
-                onClickHandler={() => dispatch(fetchPost(item.id))}
-                isLarge={false}
-              />
-            );
-          })}
+          {!isLoading && posts
+            ? posts.map((item: IPost) => {
+                return (
+                  <PostBlock
+                    key={item.id}
+                    post={item}
+                    onClickHandler={async () => {
+                      await dispatch(fetchPost(item.id));
+                      setIsLoadingFullArticle(false);
+                    }}
+                    isLarge={false}
+                  />
+                );
+              })
+            : new Array(10).fill(undefined).map((_, index) => {
+                return (
+                  <ContentLoader
+                    key={index}
+                    speed={2}
+                    width={500}
+                    height={330}
+                    viewBox="0 0 500 330"
+                    backgroundColor="#f3f3f3"
+                    foregroundColor="#ecebeb"
+                  >
+                    <rect
+                      x="0"
+                      y="0"
+                      rx="20"
+                      ry="20"
+                      width="500"
+                      height="330"
+                    />
+                  </ContentLoader>
+                );
+              })}
         </PostBlockWrapper>
-        {post && <PostBlock ref={largePostRef} post={post} isLarge={true} />}
+        {!isLoadingFullArticle && (
+          <FullArticle>
+            {post ? (
+              <PostBlock ref={largePostRef} post={post} isLarge={true} />
+            ) : (
+              <ContentLoader
+                speed={2}
+                width={600}
+                height={550}
+                viewBox="0 0 600 550"
+                backgroundColor="#f3f3f3"
+                foregroundColor="#ecebeb"
+              >
+                <rect x="0" y="0" rx="20" ry="20" width="600" height="550" />
+              </ContentLoader>
+            )}
+          </FullArticle>
+        )}
       </ContentWrapper>
       {isOpenedModalWindow && (
         <ModalWindow>
