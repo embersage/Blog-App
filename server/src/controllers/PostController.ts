@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import Post from '../database/models/Post.js';
 import { ILike } from 'typeorm';
 import AppDataSource from '../database/connection.js';
+import User from '../database/models/User.js';
 
 class PostController {
   static async getAll(req: Request, res: Response) {
@@ -50,11 +51,15 @@ class PostController {
       const { title, text, image } = req.body;
 
       const postRepository = AppDataSource.getRepository(Post);
+      const userRepository = AppDataSource.getRepository(User);
 
-      const post = postRepository.create({ title, text, image, user: userId });
-      const createdPost = await AppDataSource.getRepository(Post).save(post);
+      const user = await userRepository.findOneBy({ id: userId });
+      if (user) {
+        const post = postRepository.create({ title, text, image, user });
+        const createdPost = await AppDataSource.getRepository(Post).save(post);
 
-      return res.status(201).json(createdPost);
+        return res.status(201).json(createdPost);
+      }
     } catch (error) {
       return res.status(500).json({ message: 'Ошибка при создании ресурса.' });
     }

@@ -4,14 +4,14 @@ interface InterfaceState {
   isOpenedModalWindow: boolean;
   search: string;
   pressedButton: string;
-  order: number;
+  order: { field: string; type: string } | null;
 }
 
 const initialState: InterfaceState = {
   isOpenedModalWindow: false,
   search: '',
   pressedButton: '',
-  order: 0,
+  order: null,
 };
 
 const interfaceSlice = createSlice({

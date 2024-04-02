@@ -16,8 +16,16 @@ const initialState: PostState = {
 
 export const fetchPosts = createAsyncThunk(
   'posts/fetchPosts',
-  async (search: string) => {
-    const response = await axios.get('/api/posts', { params: { search } });
+  async ({
+    search,
+    order,
+  }: {
+    search: string;
+    order: { field: string; type: string } | null;
+  }) => {
+    const response = await axios.get('/api/posts', {
+      params: { search, field: order?.field, order: order?.type },
+    });
     return response.data;
   }
 );

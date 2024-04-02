@@ -92,11 +92,11 @@ const SortPopup = styled.div`
 const Header: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const userData = useSelector((state: RootState) => state.userReducer.data);
-  const order = useSelector((state: RootState) => state.interfaceReducer.order);
+  const [sort, setSort] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const variants = [
-    { name: 'Сначала новые', field: 'createdAt', order: 'ASC' },
-    { name: 'Сначала старые', field: 'createdAt', order: 'DESC' },
+    { name: 'Сначала новые', field: 'createdAt', order: 'DESC' },
+    { name: 'Сначала старые', field: 'createdAt', order: 'ASC' },
     { name: 'Сначала популярные', field: 'views', order: 'DESC' },
     { name: 'Сначала непопулярные', field: 'views', order: 'ASC' },
   ];
@@ -108,7 +108,7 @@ const Header: FC = () => {
           <Search />
           <span>Сортировка: </span>
           <span onClick={() => setIsVisible(!isVisible)}>
-            {variants[order].name}
+            {variants[sort].name}
           </span>
           {isVisible && (
             <SortPopup>
@@ -117,7 +117,10 @@ const Header: FC = () => {
                   <li
                     key={index}
                     onClick={() => {
-                      dispatch(setOrder(index));
+                      dispatch(
+                        setOrder({ field: item.field, type: item.order })
+                      );
+                      setSort(index);
                       setIsVisible(false);
                     }}
                   >

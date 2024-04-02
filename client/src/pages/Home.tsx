@@ -147,6 +147,7 @@ const Home: FC = () => {
   const pressedButton = useSelector(
     (state: RootState) => state.interfaceReducer.pressedButton
   );
+  const order = useSelector((state: RootState) => state.interfaceReducer.order);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -159,15 +160,14 @@ const Home: FC = () => {
 
   useEffect(() => {
     (async () => {
-      const response = await dispatch(fetchPosts(search));
+      setIsLoading(true);
+      const response = await dispatch(fetchPosts({ search, order }));
       if (response.payload) {
         setIsLoading(false);
       }
     })();
 
-    //TODO
-    //Change type of event
-    const handleClickOutside = (event: any) => {
+    const handleClickOutside = (event: Event) => {
       if (
         largePostRef.current &&
         !event.composedPath().includes(largePostRef.current)
@@ -182,7 +182,7 @@ const Home: FC = () => {
     return () => {
       document.body.removeEventListener('click', handleClickOutside);
     };
-  }, [search]);
+  }, [search, order]);
 
   const authClickHandler = async (event: MouseEvent) => {
     event.preventDefault();
@@ -216,7 +216,7 @@ const Home: FC = () => {
     event.preventDefault();
     if (title.length > 0 && text.length > 0) {
       await dispatch(createPost({ title, text }));
-      await dispatch(fetchPosts(search));
+      await dispatch(fetchPosts({ search, order }));
       dispatch(setIsOpenedModalWindow(false));
       setTitle('');
       setText('');
