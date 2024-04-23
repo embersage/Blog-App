@@ -1,6 +1,7 @@
 import { forwardRef } from 'react';
 import styled from 'styled-components';
 import { BsEyeFill } from 'react-icons/bs';
+import { MdOutlineDeleteOutline } from 'react-icons/md';
 import IPost from '../models/IPost';
 
 const PostBlockWrapper = styled.div<{ isLarge: boolean }>`
@@ -64,12 +65,14 @@ interface IProps {
   post: IPost;
   onClickHandler?: () => void;
   isLarge: boolean;
+  isEditable?: boolean;
+  onDeleteHandler?: () => void;
 }
 
 export type Ref = HTMLDivElement;
 
 const PostBlock = forwardRef<Ref, IProps>((props, ref) => {
-  const { post, onClickHandler, isLarge } = props;
+  const { post, onClickHandler, isLarge, isEditable, onDeleteHandler } = props;
 
   return (
     <PostBlockWrapper ref={ref} onClick={onClickHandler} isLarge={isLarge}>
@@ -83,6 +86,11 @@ const PostBlock = forwardRef<Ref, IProps>((props, ref) => {
         <span>
           {post.views} <BsEyeFill />
         </span>
+        {isEditable && (
+          <button onClick={onDeleteHandler}>
+            <MdOutlineDeleteOutline />
+          </button>
+        )}
         <span>{new Date(post.createdAt).toLocaleString()}</span>
       </AdditionalInfo>
     </PostBlockWrapper>

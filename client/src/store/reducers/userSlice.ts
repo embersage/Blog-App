@@ -1,7 +1,17 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import axios from '../../axios';
+interface UserState {
+  data: null | {
+    id: string;
+    name: string;
+    email: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+  loading: 'idle' | 'pending' | 'succeeded' | 'failed';
+}
 
-const initialState = {
+const initialState: UserState = {
   data: null,
   loading: 'idle',
 };

@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from '../store';
 import { login, register } from '../store/reducers/userSlice';
 import {
   createPost,
+  deletePost,
   fetchPost,
   fetchPosts,
   setPost,
@@ -136,6 +137,7 @@ const SwitchButton = styled.button``;
 
 const Home: FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const user = useSelector((state: RootState) => state.userReducer.data);
   const post = useSelector((state: RootState) => state.postsReducer.post);
   const posts = useSelector((state: RootState) => state.postsReducer.posts);
   const isOpenedModalWindow = useSelector(
@@ -239,6 +241,11 @@ const Home: FC = () => {
                       setIsLoadingFullArticle(false);
                     }}
                     isLarge={false}
+                    isEditable={user?.id === item.user.id}
+                    onDeleteHandler={async () => {
+                      await dispatch(deletePost(item.id));
+                      await dispatch(fetchPosts({ search, order }));
+                    }}
                   />
                 );
               })

@@ -46,6 +46,14 @@ export const createPost = createAsyncThunk(
   }
 );
 
+export const deletePost = createAsyncThunk(
+  'posts/deletePost',
+  async (id: string) => {
+    const response = await axios.delete(`/api/posts/${id}`);
+    return response.data;
+  }
+);
+
 const postsReducer = createSlice({
   name: 'posts',
   initialState,

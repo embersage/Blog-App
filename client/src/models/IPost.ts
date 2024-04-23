@@ -6,6 +6,10 @@ interface IPost {
   image: string;
   createdAt: Date;
   updatedAt: Date;
+  user: {
+    id: string;
+    name: string;
+  };
 }
 
 export default IPost;
