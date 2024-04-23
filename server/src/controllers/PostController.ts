@@ -19,9 +19,18 @@ class PostController {
         order: {
           [field as string]: order,
         },
+        relations: ['user'],
       });
 
-      return res.status(200).json(posts);
+      const response = posts.map((post) => ({
+        ...post,
+        user: {
+          id: post.user.id,
+          name: post.user.name,
+        },
+      }));
+
+      return res.status(200).json(response);
     } catch (error) {
       return res.status(500).json({ message: 'Ошибка при получении ресурсов.' });
     }
@@ -32,13 +41,19 @@ class PostController {
       const { id } = req.params;
 
       const postRepository = AppDataSource.getRepository(Post);
-      const post = await postRepository.findOneBy({ id });
+      const post = await postRepository.findOne({ where: { id }, relations: ['user'] });
 
       if (post) {
         post.views++;
         await postRepository.save(post);
-
-        return res.status(200).json(post);
+        const response = {
+          ...post,
+          user: {
+            id: post.user.id,
+            name: post.user.name,
+          },
+        };
+        return res.status(200).json(response);
       }
     } catch (error) {
       return res.status(404).json({ message: 'Ошибка при получении ресурса.' });
