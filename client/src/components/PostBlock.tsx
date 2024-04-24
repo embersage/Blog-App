@@ -30,7 +30,9 @@ const PostBlockWrapper = styled.div<{ isLarge: boolean }>`
 
   & img {
     width: 400px;
-    border-radius: 20px;
+    height: auto;
+    max-height: 200px;
+    object-fit: contain;
   }
 
   & p {
@@ -120,7 +122,11 @@ const PostBlock = forwardRef<Ref, IProps>((props, ref) => {
   return (
     <PostBlockWrapper ref={ref} onClick={onClickHandler} isLarge={isLarge}>
       <img
-        src={post.image ? post.image : '../assets/image-placeholder.gif'}
+        src={
+          post.image
+            ? `${process.env.REACT_APP_API_URL}/${post.image}`
+            : '../assets/image-placeholder.gif'
+        }
         alt={post.image}
       />
       <h2>{post.title}</h2>

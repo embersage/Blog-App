@@ -1,4 +1,12 @@
-import { FC, useEffect, useState, MouseEvent, useRef } from 'react';
+import {
+  FC,
+  useEffect,
+  useState,
+  MouseEvent,
+  useRef,
+  FormEvent,
+  ChangeEvent,
+} from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import ContentLoader from 'react-content-loader';
@@ -11,6 +19,7 @@ import {
   fetchPost,
   fetchPosts,
   setPost,
+  uploadImage,
 } from '../store/reducers/postsSlice';
 import PostBlock from '../components/PostBlock';
 import IPost from '../models/IPost';
@@ -160,6 +169,7 @@ const Home: FC = () => {
   const [id, setId] = useState('');
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
+  const [image, setImage] = useState('');
   const [modalContent, setModalContent] = useState('authorization');
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingFullArticle, setIsLoadingFullArticle] = useState(true);
@@ -223,15 +233,17 @@ const Home: FC = () => {
     event.preventDefault();
     if (title.length > 0 && text.length > 0) {
       if (pressedButton === 'articleCreation') {
-        await dispatch(createPost({ title, text }));
+        await dispatch(createPost({ title, text, image }));
       } else {
-        await dispatch(editPost({ id, title, text }));
+        await dispatch(editPost({ id, title, text, image }));
+        await dispatch(fetchPost(id));
       }
 
       await dispatch(fetchPosts({ search, order }));
       dispatch(setIsOpenedModalWindow(false));
       setTitle('');
       setText('');
+      setImage('');
       setPassword('');
     }
   };
@@ -393,6 +405,19 @@ const Home: FC = () => {
                   value={text}
                   onChange={(event) => {
                     setText(event.target.value);
+                  }}
+                />
+              </TextWrapper>
+              <TextWrapper>
+                <input
+                  type="file"
+                  onChange={async (event: ChangeEvent<HTMLInputElement>) => {
+                    if (event.target.files) {
+                      const formData = new FormData();
+                      formData.append('image', event.target.files[0]);
+                      const response = await dispatch(uploadImage(formData));
+                      setImage(response.payload.url);
+                    }
                   }}
                 />
               </TextWrapper>

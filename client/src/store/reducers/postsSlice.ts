@@ -40,16 +40,38 @@ export const fetchPost = createAsyncThunk(
 
 export const createPost = createAsyncThunk(
   'posts/createPost',
-  async ({ title, text }: { title: string; text: string }) => {
-    const response = await axios.post('/api/posts', { title, text });
+  async ({
+    title,
+    text,
+    image,
+  }: {
+    title: string;
+    text: string;
+    image?: string;
+  }) => {
+    const response = await axios.post('/api/posts', { title, text, image });
     return response.data;
   }
 );
 
 export const editPost = createAsyncThunk(
   'posts/editPost',
-  async ({ id, title, text }: { id: string; title: string; text: string }) => {
-    const response = await axios.patch(`/api/posts/${id}`, { title, text });
+  async ({
+    id,
+    title,
+    text,
+    image,
+  }: {
+    id: string;
+    title: string;
+    text: string;
+    image?: string;
+  }) => {
+    const response = await axios.patch(`/api/posts/${id}`, {
+      title,
+      text,
+      image,
+    });
     return response.data;
   }
 );
@@ -58,6 +80,14 @@ export const deletePost = createAsyncThunk(
   'posts/deletePost',
   async (id: string) => {
     const response = await axios.delete(`/api/posts/${id}`);
+    return response.data;
+  }
+);
+
+export const uploadImage = createAsyncThunk(
+  'posts/uploadImage',
+  async (formData: FormData) => {
+    const response = await axios.post('/api/posts/upload', formData);
     return response.data;
   }
 );
