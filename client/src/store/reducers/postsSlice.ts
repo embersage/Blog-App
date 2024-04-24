@@ -46,6 +46,14 @@ export const createPost = createAsyncThunk(
   }
 );
 
+export const editPost = createAsyncThunk(
+  'posts/editPost',
+  async ({ id, title, text }: { id: string; title: string; text: string }) => {
+    const response = await axios.patch(`/api/posts/${id}`, { title, text });
+    return response.data;
+  }
+);
+
 export const deletePost = createAsyncThunk(
   'posts/deletePost',
   async (id: string) => {

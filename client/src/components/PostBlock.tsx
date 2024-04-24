@@ -1,7 +1,10 @@
 import { forwardRef } from 'react';
 import styled from 'styled-components';
 import { BsEyeFill } from 'react-icons/bs';
-import { MdOutlineDeleteOutline } from 'react-icons/md';
+import {
+  MdOutlineDeleteOutline,
+  MdOutlineModeEditOutline,
+} from 'react-icons/md';
 import IPost from '../models/IPost';
 
 const PostBlockWrapper = styled.div<{ isLarge: boolean }>`
@@ -16,6 +19,7 @@ const PostBlockWrapper = styled.div<{ isLarge: boolean }>`
   box-shadow: 0px 0px 10px #eeeeee;
   border-radius: 20px;
   transition: all 0.3s ease-in-out;
+  position: relative;
 
   & h2 {
     margin: 0;
@@ -60,6 +64,37 @@ const AdditionalInfo = styled.div`
   }
 `;
 
+const Buttons = styled.div`
+  top: 10px;
+  right: 10px;
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+`;
+
+const Button = styled.button`
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  border-radius: 25px;
+  background-color: #fff;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    cursor: pointer;
+    transform: scale(1.1);
+    background-color: #eee;
+
+    svg {
+      color: ${(props) => props.color};
+    }
+  }
+`;
+
 interface IProps {
   ref?: React.Ref<HTMLDivElement>;
   post: IPost;
@@ -67,12 +102,20 @@ interface IProps {
   isLarge: boolean;
   isEditable?: boolean;
   onDeleteHandler?: () => void;
+  onEditHandler?: () => void;
 }
 
 export type Ref = HTMLDivElement;
 
 const PostBlock = forwardRef<Ref, IProps>((props, ref) => {
-  const { post, onClickHandler, isLarge, isEditable, onDeleteHandler } = props;
+  const {
+    post,
+    onClickHandler,
+    isLarge,
+    isEditable,
+    onDeleteHandler,
+    onEditHandler,
+  } = props;
 
   return (
     <PostBlockWrapper ref={ref} onClick={onClickHandler} isLarge={isLarge}>
@@ -87,9 +130,14 @@ const PostBlock = forwardRef<Ref, IProps>((props, ref) => {
           {post.views} <BsEyeFill />
         </span>
         {isEditable && (
-          <button onClick={onDeleteHandler}>
-            <MdOutlineDeleteOutline />
-          </button>
+          <Buttons>
+            <Button onClick={onDeleteHandler} color="#ed1e1d">
+              <MdOutlineDeleteOutline />
+            </Button>
+            <Button onClick={onEditHandler} color="#35c5d4">
+              <MdOutlineModeEditOutline />
+            </Button>
+          </Buttons>
         )}
         <span>{new Date(post.createdAt).toLocaleString()}</span>
       </AdditionalInfo>

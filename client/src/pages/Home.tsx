@@ -6,6 +6,7 @@ import { AppDispatch, RootState } from '../store';
 import { login, register } from '../store/reducers/userSlice';
 import {
   createPost,
+  editPost,
   deletePost,
   fetchPost,
   fetchPosts,
@@ -14,7 +15,10 @@ import {
 import PostBlock from '../components/PostBlock';
 import IPost from '../models/IPost';
 import ModalWindow from '../components/ModalWindow';
-import { setIsOpenedModalWindow } from '../store/reducers/interfaceSlice';
+import {
+  setIsOpenedModalWindow,
+  setPressedButton,
+} from '../store/reducers/interfaceSlice';
 
 const ContentWrapper = styled.main`
   padding: 0 15px;
@@ -153,6 +157,7 @@ const Home: FC = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [id, setId] = useState('');
   const [title, setTitle] = useState('');
   const [text, setText] = useState('');
   const [modalContent, setModalContent] = useState('authorization');
@@ -217,7 +222,12 @@ const Home: FC = () => {
   const createPostClickHandler = async (event: MouseEvent) => {
     event.preventDefault();
     if (title.length > 0 && text.length > 0) {
-      await dispatch(createPost({ title, text }));
+      if (pressedButton === 'articleCreation') {
+        await dispatch(createPost({ title, text }));
+      } else {
+        await dispatch(editPost({ id, title, text }));
+      }
+
       await dispatch(fetchPosts({ search, order }));
       dispatch(setIsOpenedModalWindow(false));
       setTitle('');
@@ -245,6 +255,13 @@ const Home: FC = () => {
                     onDeleteHandler={async () => {
                       await dispatch(deletePost(item.id));
                       await dispatch(fetchPosts({ search, order }));
+                    }}
+                    onEditHandler={async () => {
+                      await dispatch(setIsOpenedModalWindow(true));
+                      await dispatch(setPressedButton('articleEditing'));
+                      setId(item.id);
+                      setTitle(item.title);
+                      setText(item.text);
                     }}
                   />
                 );
@@ -352,9 +369,14 @@ const Home: FC = () => {
               </SwitchButton>
             </FormWrapper>
           )}
-          {pressedButton === 'articleCreation' && (
+          {(pressedButton === 'articleCreation' ||
+            pressedButton === 'articleEditing') && (
             <FormWrapper>
-              <h2>Создание записи</h2>
+              <h2>
+                {pressedButton === 'articleCreation'
+                  ? 'Создание записи'
+                  : 'Редактирование записи'}
+              </h2>
               <TextWrapper>
                 <span>Название:</span>
                 <input
@@ -378,7 +400,9 @@ const Home: FC = () => {
                 type="submit"
                 onClick={(event: MouseEvent) => createPostClickHandler(event)}
               >
-                Опубликовать
+                {pressedButton === 'articleCreation'
+                  ? 'Опубликовать'
+                  : 'Изменить'}
               </button>
             </FormWrapper>
           )}
